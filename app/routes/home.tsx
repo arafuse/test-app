@@ -1,13 +1,13 @@
 import type { Route } from './+types/home'
-import { Welcome } from '../welcome/welcome'
+import { TaxYearForm } from '../features/tax-year'
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'New React Router App' },
-    { name: 'description', content: 'Welcome to React Router!' },
+    { title: 'Tax bracket calculator' },
+    { name: 'description', content: 'Tax bracket calculator' },
   ]
 }
 
 export default function Home() {
-  return <Welcome />
+  return <TaxYearForm />
 }
