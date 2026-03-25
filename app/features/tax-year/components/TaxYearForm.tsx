@@ -1,6 +1,33 @@
+import { useEffect } from 'react'
+import { useTaxYearData } from '../hooks/useTaxYearData'
+
 export function TaxYearForm() {
+  const taxYearData = useTaxYearData(state => state.data)
+  const setTaxYearData = useTaxYearData(state => state.setData)
+
+  useEffect(() => {
+    console.log(taxYearData)
+  })
+
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
+
+    const form = e.currentTarget
+
+    const taxYear = (form.elements.namedItem('taxYear') as HTMLInputElement)
+      .value
+
+    const response = await fetch(
+      `http://localhost:5001/tax-calculator/tax-year/${taxYear}`,
+    )
+
+    const data = await response.json()
+
+    setTaxYearData(data)
+  }
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div>
         <label htmlFor="annualIncome">Annual Income</label>
         <input id="annualIncome" name="annualIncome" type="number" min="0" />
