@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { TaxBracket, TaxYearData } from '~/types'
+import toast, { Toaster } from 'react-hot-toast'
 import { useDebounce } from '~/hooks/useDebounce'
+import type { TaxBracket, TaxYearData } from '~/types'
 import { useTaxTable } from '../hooks/useTaxTable'
 import { useTaxYearData } from '../hooks/useTaxYearData'
 
@@ -17,21 +18,19 @@ export function TaxYearForm() {
 
   let brackets: TaxBracket[] = taxYearData?.tax_brackets || []
 
-  useEffect(() => {
-    console.log(taxYearData)
-  }, [taxYearData])
-
   async function updateTaxYearData(taxYear: string) {
     if (taxYear === lastSubmittedTaxYear) return
 
     const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
     const data = (await response.json()) as TaxYearData // TODO: Type guard
 
-    // TODO: Error notificaton
-    if (!data.tax_brackets) {
-      return
+    if (data.errors && data.errors.length > 0) {
+      const text = `${data.errors[0].code}: ${data.errors[0].message}`
+      toast.error(text)      
     }
 
+    if (!data.tax_brackets) return
+  
     setTaxYearData(data)
     setLastSubmittedTaxYear(taxYear)
     brackets = data.tax_brackets
@@ -59,22 +58,26 @@ export function TaxYearForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="annualIncome">Annual Income</label>
-        <input id="annualIncome" name="annualIncome" type="number" min="0" />
-      </div>
-      <div>
-        <label htmlFor="taxYear">Tax Year</label>
-        <input
-          id="taxYear"
-          name="taxYear"
-          type="number"
-          min="2000"
-          max="2100"
-        />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+    <>
+      <Toaster />
+
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="annualIncome">Annual Income</label>
+          <input id="annualIncome" name="annualIncome" type="number" min="0" />
+        </div>
+        <div>
+          <label htmlFor="taxYear">Tax Year</label>
+          <input
+            id="taxYear"
+            name="taxYear"
+            type="number"
+            min="2000"
+            max="2100"
+          />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </>
   )
 }
