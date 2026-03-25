@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-export function useDebounce<TArgs extends Array<any>>(
-  fn: (...args: TArgs) => Promise<void>,
+export function useDebounce<TArgs extends Array<any>, TReturn>(
+  fn: (...args: TArgs) => Promise<TReturn>,
 ) {
   const [debounced, setDebounced] = useState(false)
 
@@ -10,8 +10,9 @@ export function useDebounce<TArgs extends Array<any>>(
       if (debounced) return
 
       setDebounced(true)
-      await fn(...args)
+      const result = await fn(...args)
       setDebounced(false)
+      return result
     } catch (error) {
       setDebounced(false)
       throw error

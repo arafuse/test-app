@@ -13,6 +13,19 @@ describe('useDebounce', () => {
     expect(fn).toHaveBeenCalledWith('arg1', 'arg2')
   })
 
+  it('returns the value from the wrapped function', async () => {
+    const fn = jest.fn<Promise<number>, []>().mockResolvedValue(42)
+    const { result } = renderHook(() => useDebounce(fn))
+
+    let returnValue: number | undefined
+
+    await act(async () => {
+      returnValue = await result.current()
+    })
+
+    expect(returnValue).toBe(42)
+  })
+
   it('ignores subsequent calls while the first is still running', async () => {
     let resolve!: () => void
 
