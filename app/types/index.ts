@@ -4,9 +4,24 @@ export type TaxBracket = {
   rate: number
 }
 
+export type TaxYearError = {
+  code: string
+  field: string
+  message: string
+}
+
+export type TaxYearData = {
+  tax_brackets?: TaxBracket[]
+  errors?: TaxYearError[]
+}
+
 export type TaxBracketResult = {
-    min: number
-    max?: number
-    salary: number
-    total: number  
+  min: number
+  max?: number
+  salary: number
+  total: number
+}
+
+export type TaxTable = {
+  rows: Array<TaxBracketResult>
 }

@@ -1,16 +1,5 @@
 import { create } from 'zustand'
-import type { TaxBracket } from '~/types'
-
-type TaxYearError = {
-  code: string
-  field: string
-  message: string
-}
-
-type TaxYearData = {
-  tax_brackets?: TaxBracket[]
-  errors?: TaxYearError[]
-}
+import type { TaxYearData } from '~/types'
 
 type TaxYearDataStore = {
   data: TaxYearData | null

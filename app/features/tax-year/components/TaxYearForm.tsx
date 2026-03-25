@@ -1,34 +1,42 @@
 import { useEffect, useState } from 'react'
 import { useTaxYearData } from '../hooks/useTaxYearData'
+import type { TaxYearData } from '~/types'
+
+const API_ENDPOINT = 'http://localhost:5001/tax-calculator/tax-year'
 
 export function TaxYearForm() {
-  const taxYearData = useTaxYearData(state => state.data)
-  const setTaxYearData = useTaxYearData(state => state.setData)
-
   const [lastSubmittedTaxYear, setLastSubmittedTaxYear] = useState<
     string | null
   >(null)
 
+  const taxYearData = useTaxYearData(state => state.data)
+  const setTaxYearData = useTaxYearData(state => state.setData)
+
   useEffect(() => {
     console.log(taxYearData)
-  })
+  }, [taxYearData])
+
+  async function updateTaxYearData(taxYear: string) {
+    if (taxYear === lastSubmittedTaxYear) return
+
+    const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
+    const data = (await response.json()) as TaxYearData // TODO: Type guard
+
+    // TODO: Error notificaton
+    if (data.errors) {
+      return
+    }
+
+    setTaxYearData(data)
+    setLastSubmittedTaxYear(taxYear)
+  }
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
     const form = e.currentTarget
-    const taxYear = (form.elements.namedItem('taxYear') as HTMLInputElement)
-      .value
-
-    if (taxYear === lastSubmittedTaxYear) return
-
-    const response = await fetch(
-      `http://localhost:5001/tax-calculator/tax-year/${taxYear}`,
-    )
-    const data = await response.json()
-
-    setTaxYearData(data)
-    setLastSubmittedTaxYear(taxYear)
+    const element = form.elements.namedItem('taxYear') as HTMLInputElement
+    await updateTaxYearData(element.value)
   }
 
   return (
