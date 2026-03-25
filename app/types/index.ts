@@ -23,5 +23,6 @@ export type TaxBracketResult = {
 }
 
 export type TaxTable = {
+  salary: number
   rows: Array<TaxBracketResult>
 }

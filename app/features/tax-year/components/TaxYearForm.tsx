@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { TaxYearData } from '~/types'
+import type { TaxBracket, TaxYearData } from '~/types'
 import { useDebounce } from '~/hooks/useDebounce'
 import { useTaxTable } from '../hooks/useTaxTable'
 import { useTaxYearData } from '../hooks/useTaxYearData'
@@ -15,6 +15,8 @@ export function TaxYearForm() {
   const setTaxYearData = useTaxYearData(state => state.setData)
   const setTaxTableRows = useTaxTable(state => state.setRows)
 
+  let brackets: TaxBracket[] = taxYearData?.tax_brackets || []
+
   useEffect(() => {
     console.log(taxYearData)
   }, [taxYearData])
@@ -26,12 +28,13 @@ export function TaxYearForm() {
     const data = (await response.json()) as TaxYearData // TODO: Type guard
 
     // TODO: Error notificaton
-    if (data.errors) {
+    if (!data.tax_brackets) {
       return
     }
 
     setTaxYearData(data)
     setLastSubmittedTaxYear(taxYear)
+    brackets = data.tax_brackets
   }
 
   const updateTaxYearDataDebounced =
@@ -52,10 +55,7 @@ export function TaxYearForm() {
 
     await updateTaxYearDataDebounced(taxYearElement.value)
     const salary = Number(annualIncomeElement.value)
-
-    if (taxYearData?.tax_brackets && !Number.isNaN(salary)) {
-      setTaxTableRows(salary, taxYearData.tax_brackets)
-    }
+    setTaxTableRows(salary, brackets)
   }
 
   return (

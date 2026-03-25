@@ -7,7 +7,8 @@ type TaxTableStore = TaxTable & {
 }
 
 export const useTaxTable = create<TaxTableStore>(set => ({
+  salary: 0,
   rows: [],
   setRows: (salary, brackets) =>
-    set({ rows: taxResultsFrom(salary, brackets) }),
+    set({ salary, rows: taxResultsFrom(salary, brackets) }),
 }))

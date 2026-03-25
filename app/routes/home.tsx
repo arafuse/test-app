@@ -1,5 +1,6 @@
 import type { Route } from './+types/home'
 import { TaxYearForm } from '../features/tax-year'
+import { TaxYearResults } from '~/features/tax-year/components/TaxYearResults'
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +10,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <TaxYearForm />
+  return (
+    <>
+      <TaxYearForm />      
+      <TaxYearResults />
+    </>
+  )
 }
