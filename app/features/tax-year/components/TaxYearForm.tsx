@@ -16,8 +16,6 @@ export function TaxYearForm() {
   const setTaxYearData = useTaxYearData(state => state.setData)
   const setTaxTableRows = useTaxTable(state => state.setRows)
 
-  let brackets: TaxBracket[] = taxYearData?.tax_brackets || []
-
   async function updateTaxYearData(taxYear: string) {
     if (taxYear === lastSubmittedTaxYear) return
 
@@ -26,18 +24,21 @@ export function TaxYearForm() {
 
     if (data.errors && data.errors.length > 0) {
       const text = `${data.errors[0].code}: ${data.errors[0].message}`
-      toast.error(text)      
+      toast.error(text)
     }
 
-    if (!data.tax_brackets) return
-  
+    if (!data.tax_brackets) return 
+
     setTaxYearData(data)
     setLastSubmittedTaxYear(taxYear)
-    brackets = data.tax_brackets
+
+    return data
   }
 
-  const updateTaxYearDataDebounced =
-    useDebounce<Parameters<typeof updateTaxYearData>>(updateTaxYearData)
+  const updateTaxYearDataDebounced = useDebounce<
+    Parameters<typeof updateTaxYearData>,
+    TaxYearData | undefined
+  >(updateTaxYearData)
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -52,9 +53,11 @@ export function TaxYearForm() {
       'annualIncome',
     ) as HTMLInputElement
 
-    await updateTaxYearDataDebounced(taxYearElement.value)
+    const data = await updateTaxYearDataDebounced(taxYearElement.value)
     const salary = Number(annualIncomeElement.value)
-    setTaxTableRows(salary, brackets)
+    const brackets = data?.tax_brackets || taxYearData?.tax_brackets
+
+    if (brackets && !Number.isNaN(salary)) setTaxTableRows(salary, brackets)
   }
 
   return (
