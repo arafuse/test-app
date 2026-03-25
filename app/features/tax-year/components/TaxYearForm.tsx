@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTaxYearData } from '../hooks/useTaxYearData'
 import type { TaxYearData } from '~/types'
+import { useDebounce } from '~/hooks/useDebounce'
 
 const API_ENDPOINT = 'http://localhost:5001/tax-calculator/tax-year'
 
@@ -31,12 +32,16 @@ export function TaxYearForm() {
     setLastSubmittedTaxYear(taxYear)
   }
 
+  const updateTaxYearDataDebounced =
+    useDebounce<Parameters<typeof updateTaxYearData>>(updateTaxYearData)
+
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
 
     const form = e.currentTarget
     const element = form.elements.namedItem('taxYear') as HTMLInputElement
-    await updateTaxYearData(element.value)
+
+    await updateTaxYearDataDebounced(element.value)
   }
 
   return (
