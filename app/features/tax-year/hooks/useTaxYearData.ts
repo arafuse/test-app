@@ -1,10 +1,5 @@
 import { create } from 'zustand'
-
-type TaxBracket = {
-  min: number
-  max?: number
-  rate: number
-}
+import type { TaxBracket } from '~/types'
 
 type TaxYearError = {
   code: string
