@@ -1,9 +1,13 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTaxYearData } from '../hooks/useTaxYearData'
 
 export function TaxYearForm() {
   const taxYearData = useTaxYearData(state => state.data)
   const setTaxYearData = useTaxYearData(state => state.setData)
+
+  const [lastSubmittedTaxYear, setLastSubmittedTaxYear] = useState<
+    string | null
+  >(null)
 
   useEffect(() => {
     console.log(taxYearData)
@@ -13,17 +17,18 @@ export function TaxYearForm() {
     e.preventDefault()
 
     const form = e.currentTarget
-
     const taxYear = (form.elements.namedItem('taxYear') as HTMLInputElement)
       .value
+
+    if (taxYear === lastSubmittedTaxYear) return
 
     const response = await fetch(
       `http://localhost:5001/tax-calculator/tax-year/${taxYear}`,
     )
-
     const data = await response.json()
 
     setTaxYearData(data)
+    setLastSubmittedTaxYear(taxYear)
   }
 
   return (
