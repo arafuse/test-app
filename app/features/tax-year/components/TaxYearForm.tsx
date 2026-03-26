@@ -1,64 +1,74 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { useDebounce } from '~/hooks/useDebounce'
-import type { TaxBracket, TaxYearData } from '~/types'
+import type { TaxYearData } from '~/types'
 import { useTaxTable } from '../hooks/useTaxTable'
 import { useTaxYearData } from '../hooks/useTaxYearData'
 
 const API_ENDPOINT = 'http://localhost:5001/tax-calculator/tax-year'
 
 export function TaxYearForm() {
-  const [lastSubmittedTaxYear, setLastSubmittedTaxYear] = useState<
-    string | null
-  >(null)
-
   const taxYearData = useTaxYearData(state => state.data)
   const setTaxYearData = useTaxYearData(state => state.setData)
   const setTaxTableRows = useTaxTable(state => state.setRows)
 
-  async function updateTaxYearData(taxYear: string) {
-    if (taxYear === lastSubmittedTaxYear) return
+  const [lastTaxYear, setLastTaxYear] = useState<string | null>(null)
 
-    const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
-    const data = (await response.json()) as TaxYearData // TODO: Type guard
+  const handleError = useCallback((response: Response) => {
+    if (response.status == 200) return
 
-    if (data.errors && data.errors.length > 0) {
-      const text = `${data.errors[0].code}: ${data.errors[0].message}`
-      toast.error(text)
-    }
+    const uiText =
+      response.status == 500
+        ? 'Temporary error, please try again'
+        : 'Invalid tax year'
 
-    if (!data.tax_brackets) return 
+    toast.error(uiText)
+  }, [])
 
-    setTaxYearData(data)
-    setLastSubmittedTaxYear(taxYear)
+  const updateTaxYearData = useCallback(
+    async (taxYear: string) => {
+      if (taxYear === lastTaxYear) return
 
-    return data
-  }
+      const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
+      const data = (await response.json()) as TaxYearData // TODO: Type guard
+      handleError(response)
+
+      if (!data.tax_brackets) return
+
+      setTaxYearData(data)
+      setLastTaxYear(taxYear)
+
+      return data
+    },
+    [lastTaxYear, handleError, setTaxYearData, setLastTaxYear],
+  )
 
   const updateTaxYearDataDebounced = useDebounce<
     Parameters<typeof updateTaxYearData>,
     TaxYearData | undefined
   >(updateTaxYearData)
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
+  const handleSubmit = useCallback(
+    async (e: React.SubmitEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const form = e.currentTarget
 
-    const form = e.currentTarget
+      const taxYearElement = form.elements.namedItem(
+        'taxYear',
+      ) as HTMLInputElement
 
-    const taxYearElement = form.elements.namedItem(
-      'taxYear',
-    ) as HTMLInputElement
+      const annualIncomeElement = form.elements.namedItem(
+        'annualIncome',
+      ) as HTMLInputElement
 
-    const annualIncomeElement = form.elements.namedItem(
-      'annualIncome',
-    ) as HTMLInputElement
+      const data = await updateTaxYearDataDebounced(taxYearElement.value)
+      const salary = Number(annualIncomeElement.value)
+      const brackets = data?.tax_brackets || taxYearData?.tax_brackets
 
-    const data = await updateTaxYearDataDebounced(taxYearElement.value)
-    const salary = Number(annualIncomeElement.value)
-    const brackets = data?.tax_brackets || taxYearData?.tax_brackets
-
-    if (brackets && !Number.isNaN(salary)) setTaxTableRows(salary, brackets)
-  }
+      if (brackets && !Number.isNaN(salary)) setTaxTableRows(salary, brackets)
+    },
+    [taxYearData, updateTaxYearDataDebounced, setTaxTableRows],
+  )
 
   return (
     <>
@@ -79,7 +89,9 @@ export function TaxYearForm() {
             max="2100"
           />
         </div>
-        <button type="submit" className="btn">Submit</button>
+        <button type="submit" className="btn">
+          Submit
+        </button>
       </form>
     </>
   )

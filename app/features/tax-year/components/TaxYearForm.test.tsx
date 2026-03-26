@@ -100,7 +100,7 @@ describe('TaxYearForm', () => {
 
     await waitFor(() => {
       expect(jest.mocked(toast.error)).toHaveBeenCalledWith(
-        'NOT_FOUND: Tax year not found.',
+        'Invalid tax year',
       )
     })
   })
