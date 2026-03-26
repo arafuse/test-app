@@ -13,6 +13,7 @@ export function TaxYearForm() {
   const setTaxTableRows = useTaxTable(state => state.setRows)
 
   const [lastTaxYear, setLastTaxYear] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
 
   const handleError = useCallback((response: Response) => {
     if (response.status == 200) return
@@ -29,7 +30,10 @@ export function TaxYearForm() {
     async (taxYear: string) => {
       if (taxYear === lastTaxYear) return
 
+      setLoading(true)
       const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
+      setLoading(false)
+
       const data = TaxYearData.parse(await response.json())
       handleError(response)
 
@@ -40,7 +44,7 @@ export function TaxYearForm() {
 
       return data
     },
-    [lastTaxYear, handleError, setTaxYearData, setLastTaxYear],
+    [lastTaxYear, handleError, setTaxYearData, setLastTaxYear, setLoading],
   )
 
   const updateTaxYearDataDebounced = useDebounce<
@@ -90,7 +94,7 @@ export function TaxYearForm() {
           />
         </div>
         <button type="submit" className="btn">
-          Submit
+          {loading ? "Loading..." : "Submit"}
         </button>
       </form>
     </>
