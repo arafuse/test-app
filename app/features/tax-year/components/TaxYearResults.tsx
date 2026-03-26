@@ -1,15 +1,21 @@
+import { useCallback, useMemo } from 'react'
 import { useTaxTable } from '../hooks/useTaxTable'
 
 export function TaxYearResults() {
   const taxTableRows = useTaxTable(state => state.rows)
   const taxTableSalary = useTaxTable(state => state.salary)
 
-  if (taxTableRows.length == 0) return null
+  const totalTaxes = useMemo(
+    () => taxTableRows.reduce((sum, row) => sum + row.total, 0),
+    [taxTableRows],
+  )
 
-  const totalTaxes = taxTableRows.reduce((sum, row) => sum + row.total, 0)
-  const effectiveRate = taxTableSalary > 0 ? totalTaxes / taxTableSalary : 0
+  const effectiveRate = useMemo(
+    () => (taxTableSalary > 0 ? totalTaxes / taxTableSalary : 0),
+    [taxTableSalary],
+  )
 
-  function renderRows() {
+  const renderRows = useCallback(() => {
     return taxTableRows.map((row, i) => {
       if (!row.salary) return null
 
@@ -20,14 +26,16 @@ export function TaxYearResults() {
         </tr>
       )
     })
-  }
+  }, [taxTableRows])
+
+  if (taxTableRows.length == 0) return null
 
   return (
     <div>
-      <br/>
+      <br />
       <p>Total Taxes: {totalTaxes.toFixed(2)}</p>
       <p>Effective Tax Rate: {(effectiveRate * 100).toFixed(2)}%</p>
-      <br/>
+      <br />
       <table>
         <thead>
           <tr>
@@ -35,9 +43,7 @@ export function TaxYearResults() {
             <th>Total Taxes</th>
           </tr>
         </thead>
-        <tbody>
-          {renderRows()}
-        </tbody>
+        <tbody>{renderRows()}</tbody>
       </table>
     </div>
   )
