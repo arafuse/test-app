@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import toast, { Toaster } from 'react-hot-toast'
 import { useDebounce } from '~/hooks/useDebounce'
-import type { TaxYearData } from '~/types'
+import { TaxYearData } from '~/types'
 import { useTaxTable } from '../hooks/useTaxTable'
 import { useTaxYearData } from '../hooks/useTaxYearData'
 
@@ -30,7 +30,7 @@ export function TaxYearForm() {
       if (taxYear === lastTaxYear) return
 
       const response = await fetch(`${API_ENDPOINT}/${taxYear}`)
-      const data = (await response.json()) as TaxYearData // TODO: Type guard
+      const data = TaxYearData.parse(await response.json())
       handleError(response)
 
       if (!data.tax_brackets) return

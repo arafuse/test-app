@@ -1,19 +1,25 @@
-export type TaxBracket = {
-  min: number
-  max?: number
-  rate: number
-}
+import * as z from 'zod'
 
-export type TaxYearError = {
-  code: string
-  field: string
-  message: string
-}
+export const TaxBracket = z.object({
+  min: z.number(),
+  max: z.number().optional(),
+  rate: z.number(),
+})
 
-export type TaxYearData = {
-  tax_brackets?: TaxBracket[]
-  errors?: TaxYearError[]
-}
+export const TaxYearError = z.object({
+  code: z.string(),
+  field: z.string(),
+  message: z.string(),
+})
+
+export const TaxYearData = z.object({
+  tax_brackets: z.array(TaxBracket).optional(),
+  errors: z.array(TaxYearError).optional()
+})
+
+export type TaxBracket = z.infer<typeof TaxBracket>
+export type TaxYearError = z.infer<typeof TaxYearError>
+export type TaxYearData = z.infer<typeof TaxYearData>
 
 export type TaxBracketResult = {
   min: number
