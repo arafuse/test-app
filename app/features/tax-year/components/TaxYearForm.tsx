@@ -79,7 +79,7 @@ export function TaxYearForm() {
             max="2100"
           />
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" className="btn">Submit</button>
       </form>
     </>
   )

@@ -24,6 +24,7 @@ export function TaxYearResults() {
 
   return (
     <div>
+      <br/>
       <p>Total Taxes: {totalTaxes.toFixed(2)}</p>
       <p>Effective Tax Rate: {(effectiveRate * 100).toFixed(2)}%</p>
       <br/>
