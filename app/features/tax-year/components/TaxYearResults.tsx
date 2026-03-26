@@ -23,6 +23,7 @@ export function TaxYearResults() {
         <tr key={i}>
           <td>{row.salary.toFixed(2)}</td>
           <td>{row.total.toFixed(2)}</td>
+          <td>{(row.rate * 100).toFixed(2)}%</td>
         </tr>
       )
     })
@@ -39,8 +40,9 @@ export function TaxYearResults() {
       <table>
         <thead>
           <tr>
-            <th>Salary</th>
+            <th>Bracket Income</th>
             <th>Total Taxes</th>
+            <th>Tax Rate</th>
           </tr>
         </thead>
         <tbody>{renderRows()}</tbody>

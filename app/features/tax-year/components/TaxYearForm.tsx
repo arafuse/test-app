@@ -76,8 +76,6 @@ export function TaxYearForm() {
 
   return (
     <>
-      <Toaster />
-
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="annualIncome">Annual Income</label>

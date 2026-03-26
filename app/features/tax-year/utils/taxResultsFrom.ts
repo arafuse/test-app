@@ -13,6 +13,7 @@ export function taxResultsFrom(
       max,
       salary: bracketSalary,
       total: bracketSalary * rate,
+      rate: rate
     }
   })
 }

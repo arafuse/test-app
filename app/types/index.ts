@@ -26,6 +26,7 @@ export type TaxBracketResult = {
   max?: number
   salary: number
   total: number
+  rate: number
 }
 
 export type TaxTable = {

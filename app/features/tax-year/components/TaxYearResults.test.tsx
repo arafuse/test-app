@@ -3,8 +3,8 @@ import { TaxYearResults } from './TaxYearResults'
 import { useTaxTable } from '../hooks/useTaxTable'
 
 const mockRows = [
-  { min: 0, max: 50197, salary: 50197, total: 7529.55 },
-  { min: 50197, max: undefined, salary: 29803, total: 6109.615 },
+  { min: 0, max: 50197, salary: 50197, total: 7529.55, rate: 0.15 },
+  { min: 50197, max: undefined, salary: 29803, total: 6109.615, rate: 0.205 },
 ]
 
 describe('TaxYearResults', () => {
@@ -48,11 +48,23 @@ describe('TaxYearResults', () => {
     expect(rows).toHaveLength(mockRows.length + 1)
   })
 
+  it('renders the tax rate for each bracket row', () => {
+    useTaxTable.setState({ salary: 80000, rows: mockRows })
+
+    render(<TaxYearResults />)
+
+    for (const row of mockRows) {
+      expect(
+        screen.getByText(`${(row.rate * 100).toFixed(2)}%`),
+      ).toBeInTheDocument()
+    }
+  })
+
   it('skips rows where salary is zero', () => {
     const rowsWithZero = [
-      { min: 0, max: 50197, salary: 50197, total: 7529.55 },
-      { min: 50197, max: 100392, salary: 0, total: 0 },
-      { min: 100392, max: undefined, salary: 0, total: 0 },
+      { min: 0, max: 50197, salary: 50197, total: 7529.55, rate: 0.15 },
+      { min: 50197, max: 100392, salary: 0, total: 0, rate: 0.205 },
+      { min: 100392, max: undefined, salary: 0, total: 0, rate: 0.26 },
     ]
     useTaxTable.setState({ salary: 50197, rows: rowsWithZero })
 
@@ -63,7 +75,7 @@ describe('TaxYearResults', () => {
   })
 
   it('shows an effective rate of 0% when salary is zero', () => {
-    const rows = [{ min: 0, max: 50197, salary: 0, total: 0 }]
+    const rows = [{ min: 0, max: 50197, salary: 0, total: 0, rate: 0.15 }]
     useTaxTable.setState({ salary: 0, rows })
 
     render(<TaxYearResults />)
