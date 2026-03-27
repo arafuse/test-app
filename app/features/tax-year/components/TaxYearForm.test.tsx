@@ -143,4 +143,37 @@ describe('TaxYearForm', () => {
       expect(mockFetch).toHaveBeenCalledTimes(1)
     })
   })
+
+  it('clears the tax table rows when the API returns errors', async () => {
+    const errorData = {
+      errors: [{ code: 'NOT_FOUND', field: 'tax_year', message: 'Tax year not found.' }],
+    }
+    mockFetch.mockResolvedValueOnce({ json: async () => errorData })
+    useTaxTable.setState({ salary: 80000, rows: [{ min: 0, max: 50197, salary: 50197, total: 7529.55, rate: 0.15 }] })
+
+    render(<TaxYearForm />)
+    submitForm('80000', '1999')
+
+    await waitFor(() => {
+      expect(useTaxTable.getState().rows).toEqual([])
+    })
+  })
+
+  it('updates the tax table when re-submitting the same tax year with a different income', async () => {
+    mockFetch.mockResolvedValue({ json: async () => mockTaxYearData })
+
+    render(<TaxYearForm />)
+    submitForm('80000', '2022')
+
+    await waitFor(() => {
+      expect(useTaxTable.getState().salary).toBe(80000)
+    })
+
+    submitForm('50000', '2022')
+
+    await waitFor(() => {
+      expect(useTaxTable.getState().salary).toBe(50000)
+      expect(useTaxTable.getState().rows).toHaveLength(mockBrackets.length)
+    })
+  })
 })

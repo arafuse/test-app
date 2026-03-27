@@ -37,7 +37,7 @@ export function TaxYearForm() {
       const data = TaxYearData.parse(await response.json())
       handleError(response)
 
-      if (!data.tax_brackets) return
+      if (!data.tax_brackets) return data
 
       setTaxYearData(data)
       setLastTaxYear(taxYear)
@@ -67,9 +67,12 @@ export function TaxYearForm() {
 
       const data = await updateTaxYearDataDebounced(taxYearElement.value)
       const salary = Number(annualIncomeElement.value)
-      const brackets = data?.tax_brackets || taxYearData?.tax_brackets
 
-      if (brackets && !Number.isNaN(salary)) setTaxTableRows(salary, brackets)
+      const brackets = data?.errors
+        ? []
+        : data?.tax_brackets || taxYearData?.tax_brackets || []
+
+      setTaxTableRows(salary, brackets)
     },
     [taxYearData, updateTaxYearDataDebounced, setTaxTableRows],
   )
@@ -92,7 +95,7 @@ export function TaxYearForm() {
           />
         </div>
         <button type="submit" className="btn">
-          {loading ? "Loading..." : "Submit"}
+          {loading ? 'Loading...' : 'Submit'}
         </button>
       </form>
     </>
